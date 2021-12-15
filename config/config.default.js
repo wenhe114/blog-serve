@@ -33,8 +33,8 @@ module.exports = appInfo => {
   config.cluster = {
     listen: {
       port: 7001,
-      // hostname: myHost
-      hostname:"127.0.0.1"
+      hostname: myHost
+      // hostname:"127.0.0.1"
     }
   };
   // add your middleware config here
