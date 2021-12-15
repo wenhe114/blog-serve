@@ -1,7 +1,22 @@
 /* eslint valid-jsdoc: "off" */
 
 'use strict';
-
+const os = require('os');
+//获取本机ip
+function getIpAddress() {
+  /**os.networkInterfaces() 返回一个对象，该对象包含已分配了网络地址的网络接口 */
+var interfaces = os.networkInterfaces();
+ for (var devName in interfaces) {
+   var iface = interfaces[devName];
+    for (var i = 0; i < iface.length; i++) {
+           var alias = iface[i];
+             if (alias.family === 'IPv4' && alias.address !== '127.0.0.1' && !alias.internal) {
+               return alias.address;
+             }
+       }
+  }
+}
+const myHost = getIpAddress();
 /**
  * @param {Egg.EggAppInfo} appInfo app info
  */
@@ -14,7 +29,14 @@ module.exports = appInfo => {
 
   // use for cookie sign key, should change to your own and keep security
   config.keys = appInfo.name + '_1634823260409_4998';
-
+  //配置端口信息
+  config.cluster = {
+    listen: {
+      port: 7001,
+      // hostname: myHost
+      hostname:"127.0.0.1"
+    }
+  };
   // add your middleware config here
   config.middleware = [];
 
@@ -44,7 +66,7 @@ module.exports = appInfo => {
         return next();
       }
     },
-    query: { raw:true } 
+    query: { raw: true }
   };
 
   // image保存路径
@@ -52,16 +74,16 @@ module.exports = appInfo => {
   config.jwt = {
     secret: "ylw"//自定义 token 的加密条件字符串
   };
-  
-  config.security={
-    csrf:{
-      enable:false,
+
+  config.security = {
+    csrf: {
+      enable: false,
       ignoreJSON: true
     },
     // domainWhiteList: ['http://localhost:8080'],//允许访问接口的白名单
   }
   config.cors = {
-    origin:'*',
+    origin: '*',
     allowMethods: 'GET,HEAD,PUT,POST,DELETE,PATCH'
   };
   // add your user config here

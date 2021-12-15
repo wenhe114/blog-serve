@@ -37,6 +37,7 @@ class ContentController extends Controller {
     }
 
     async detailId() {
+        
         const ctx = this.ctx;
         // const MenuData = await this.service.meun.list()
         const id = ctx.params.id
