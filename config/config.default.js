@@ -34,7 +34,7 @@ module.exports = appInfo => {
     listen: {
       port: 7001,
       hostname: myHost
-      // hostname:"127.0.0.1"
+      // hostname:"101.42.234.72"
     }
   };
   // add your middleware config here
@@ -49,10 +49,10 @@ module.exports = appInfo => {
   };
   config.sequelize = {
     dialect: 'mysql',
-    host: 'localhost',
+    host: '101.42.234.72',
     port: "3306",
-    database: 'blog',
-    username: "root",
+    database: 'blogdata',
+    username: "blogData",
     password: "root",
     charset: "utf8",
     timezone: "+08:00",
