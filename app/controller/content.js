@@ -148,7 +148,6 @@ class ContentController extends Controller {
 
         if (contentData) {
             contentData.rows.forEach((item) => {
-                console.log(item.menu_info);
                 data.list.push({
                     id: item.id,
                     name: item.name,

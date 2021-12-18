@@ -2,6 +2,7 @@
 
 'use strict';
 const os = require('os');
+const isDev=process.env.NODE_ENV=='development'
 //获取本机ip
 function getIpAddress() {
   /**os.networkInterfaces() 返回一个对象，该对象包含已分配了网络地址的网络接口 */
@@ -49,10 +50,10 @@ module.exports = appInfo => {
   };
   config.sequelize = {
     dialect: 'mysql',
-    host: '101.42.234.72',
+    host: isDev?'localhost':myHost,
     port: "3306",
-    database: 'blogdata',
-    username: "blogData",
+    database: isDev?'blog':'blogdata',
+    username: isDev?"root":"blogData",
     password: "root",
     charset: "utf8",
     timezone: "+08:00",

@@ -37,4 +37,10 @@ module.exports = app => {
   // 关于我
   router.get("/about",controller.about.look)
   router.put("/about/update",controller.about.update)
+
+  // icon
+  router.get("/icon/list",controller.icon.list)
+  router.post("/icon/add",controller.icon.add)
+  router.put("/icon/update",controller.icon.update)
+  router.delete("/icon/delete/:id",controller.icon.delete)
 };
