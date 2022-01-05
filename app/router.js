@@ -43,4 +43,16 @@ module.exports = app => {
   router.post("/icon/add",controller.icon.add)
   router.put("/icon/update",controller.icon.update)
   router.delete("/icon/delete/:id",controller.icon.delete)
+
+  // 资源
+  router.get("/resource/list",controller.resource.list)
+  router.post("/resource/add",controller.resource.add)
+  router.put("/resource/update",controller.resource.update)
+  router.delete("/resource/delete/:id",controller.resource.delete)
+
+  // 资源分类
+  router.get("/resourceType/list",controller.resourceType.list)
+  router.post("/resourceType/add",controller.resourceType.add)
+  router.put("/resourceType/update",controller.resourceType.update)
+  router.delete("/resourceType/delete/:id",controller.resourceType.delete)
 };
