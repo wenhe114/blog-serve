@@ -16,7 +16,8 @@ module.exports=app=>{
         created_at:DATE,
         updated_at:DATE,
         qq:STRING,
-        wechat:STRING
+        wechat:STRING,
+        about_page:STRING
     },{
         freezeTableName:true
     })

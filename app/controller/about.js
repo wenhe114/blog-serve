@@ -16,9 +16,9 @@ class AboutController extends Controller {
     // 更新
     async update(){
         const ctx = this.ctx;
-        const {id,name,age,intro,job,beian_num,mail,github,skill,photo,created_at,updated_at,qq,wechat} =ctx.request.body
+        const {id,name,age,intro,job,beian_num,mail,github,skill,photo,created_at,updated_at,qq,wechat,about_page} =ctx.request.body
         
-        const data= await ctx.model.About.update({ name,age,intro,job,beian_num,mail,github,skill,photo,qq,wechat,created_at,updated_at},{where:{id:id}})
+        const data= await ctx.model.About.update({ name,age,intro,job,beian_num,mail,github,skill,photo,qq,wechat,about_page,created_at,updated_at},{where:{id:id}})
         if (data) {
             ctx.body=this.app.middleware.returnsFormat.succeed(data)
         }else{

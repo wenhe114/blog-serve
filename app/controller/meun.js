@@ -1,4 +1,5 @@
 const Controller = require('egg').Controller;
+const Sequelize = require("sequelize")
 class MenuController extends Controller {
     async list() {
         const ctx = this.ctx
@@ -72,21 +73,39 @@ class MenuController extends Controller {
 
     async sitemap() {
         const ctx = this.ctx
-        const result = await ctx.model.Menu.findAll({});
+        const app=this.app
+        const result = await ctx.model.Content.findAll({
+            where: {},
+
+            group: "content_info.type",
+            // model:app.model.Menu,
+            include: {
+                attributes: [[Sequelize.col('id'), 'id'], [Sequelize.col('meun_title'), 'meun_title'], [Sequelize.col('sort'), 'sort']],
+                model: app.model.Menu
+            },
+            raw: true,
+            attributes: [
+                // [Sequelize.col('content_info.id'), 'id'],
+                // [Sequelize.col('content_info.name'), 'name'],
+                [Sequelize.fn('COUNT', '*'), 'count']
+            ]
+        })
+        let data = []
         const now = new Date();
         now.setHours(now.getHours(), now.getMinutes() - now.getTimezoneOffset());
-        let data = []
-        for (let i = 0; i < result.length; i++) {
-            let temp = {
-                url: "/content?id="+result[i].id,  
-                changefreq: "daily",
-                lastmod: now.toISOString(),
-                name:result[i].meun_title,
-                created_at:result[i].created_at
-            }
-            data.push(temp)
-        }
+        
         if (result) {
+            for (let i = 0; i < result.length; i++) {
+                let temp = {
+                    url: "/content?id="+result[i]['menu_info.id'],  
+                    changefreq: "daily",
+                    lastmod: now.toISOString(),
+                    id:result[i]['menu_info.id'],
+                    name:result[i]['menu_info.meun_title'],
+                    count:result[i].count
+                }
+                data.push(temp)
+            }
             ctx.body = this.app.middleware.returnsFormat.succeed(data)
         } else {
             ctx.body = this.app.middleware.returnsFormat.error({ msg: "出错了" })
