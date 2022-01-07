@@ -22,6 +22,7 @@ module.exports = app => {
   router.post("/menu/add",controller.meun.add)
   router.put("/menu/update",controller.meun.update)
   router.delete("/menu/delete/:id",controller.meun.delete)
+  router.get("/menu/sitemap",controller.meun.sitemap)
 
   // 内容content接口
   router.post("/content/add",controller.content.add)
@@ -32,6 +33,7 @@ module.exports = app => {
   router.delete("/content/delete/:id",controller.content.delete)
   router.put("/content/update/readNum",controller.content.updateReadNum)
   router.put("/content/update/praiseNum",controller.content.updatePraiseNum)
+  router.get("/contents/sitemap",controller.content.sitemap)
   
 
   // 关于我

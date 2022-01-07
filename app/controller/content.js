@@ -37,7 +37,7 @@ class ContentController extends Controller {
     }
 
     async detailId() {
-        
+
         const ctx = this.ctx;
         // const MenuData = await this.service.meun.list()
         const id = ctx.params.id
@@ -267,11 +267,11 @@ class ContentController extends Controller {
         const app = this.app
         const data = await ctx.model.Content.findAll({
             where: {},
-            
+
             group: "content_info.type",
             // model:app.model.Menu,
             include: {
-                attributes: [[Sequelize.col('id'), 'id'], [Sequelize.col('meun_title'), 'meun_title'],[Sequelize.col('sort'), 'sort']],
+                attributes: [[Sequelize.col('id'), 'id'], [Sequelize.col('meun_title'), 'meun_title'], [Sequelize.col('sort'), 'sort']],
                 model: app.model.Menu
             },
             raw: true,
@@ -292,10 +292,34 @@ class ContentController extends Controller {
                 })
             })
             ctx.body = await app.middleware.returnsFormat.succeed(result)
-        }else{
+        } else {
             ctx.body = await app.middleware.returnsFormat.error({ msg: "出错了" })
         }
 
+    }
+
+    async sitemap() {
+        const ctx = this.ctx
+        const result = await ctx.model.Content.findAll({});
+        let data = []
+        const now = new Date();
+        now.setHours(now.getHours(), now.getMinutes() - now.getTimezoneOffset());
+        for (let i = 0; i < result.length; i++) {
+            let temp = {
+                url: "/content/detail?content_id="+result[i].id,  
+                changefreq: "daily",
+                lastmod: now.toISOString(),
+                id:result[i].id,
+                name:result[i].name,
+                created_at:result[i].created_at
+            }
+            data.push(temp)
+        }
+        if (result) {
+            ctx.body = this.app.middleware.returnsFormat.succeed(data)
+        } else {
+            ctx.body = this.app.middleware.returnsFormat.error({ msg: "出错了" })
+        }
     }
 }
 

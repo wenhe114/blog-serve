@@ -1,5 +1,4 @@
 const Controller = require('egg').Controller;
-
 class MenuController extends Controller {
     async list() {
         const ctx = this.ctx
@@ -69,6 +68,29 @@ class MenuController extends Controller {
         console.log(body);
         ctx.status = 200
         ctx.body =await app.middleware.returnsFormat.succeed(body)
+    }
+
+    async sitemap() {
+        const ctx = this.ctx
+        const result = await ctx.model.Menu.findAll({});
+        const now = new Date();
+        now.setHours(now.getHours(), now.getMinutes() - now.getTimezoneOffset());
+        let data = []
+        for (let i = 0; i < result.length; i++) {
+            let temp = {
+                url: "/content?id="+result[i].id,  
+                changefreq: "daily",
+                lastmod: now.toISOString(),
+                name:result[i].meun_title,
+                created_at:result[i].created_at
+            }
+            data.push(temp)
+        }
+        if (result) {
+            ctx.body = this.app.middleware.returnsFormat.succeed(data)
+        } else {
+            ctx.body = this.app.middleware.returnsFormat.error({ msg: "出错了" })
+        }
     }
 }
 
