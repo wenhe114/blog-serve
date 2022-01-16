@@ -99,13 +99,13 @@ class ContentController extends Controller {
         const pageSize = parseInt(ctx.query.pageSize) || 10
         // const MenuData=await this.service.meun.list()
         const params = []
-        let ids=ctx.query.id
+        let ids = ctx.query.id
         // if (ids) {
         //     params.push({ type: ids })
         // }
         if (!ids) {
-            
-        }else if (ids.split(",").length === 1 && ids) {
+
+        } else if (ids.split(",").length === 1 && ids) {
             params.push({
                 [Op.and]: [
                     Sequelize.where(Sequelize.fn("FIND_IN_SET", ids, Sequelize.col('type')), '>', 0)
@@ -280,37 +280,68 @@ class ContentController extends Controller {
     async analysis() {
         const ctx = this.ctx
         const app = this.app
-        const data = await ctx.model.Content.findAll({
-            where: {},
+        // const data = await ctx.model.Content.findAll({
+        //     where: {},
 
-            group: "content_info.type",
-            // model:app.model.Menu,
-            include: {
-                attributes: [[Sequelize.col('id'), 'id'], [Sequelize.col('meun_title'), 'meun_title'], [Sequelize.col('sort'), 'sort']],
-                model: app.model.Menu
-            },
-            raw: true,
-            attributes: [
-                // [Sequelize.col('content_info.id'), 'id'],
-                // [Sequelize.col('content_info.name'), 'name'],
-                [Sequelize.fn('COUNT', '*'), 'count']
-            ]
+        //     group: "content_info.type",
+        //     // model:app.model.Menu,
+        //     include: {
+        //         attributes: [[Sequelize.col('id'), 'id'], [Sequelize.col('meun_title'), 'meun_title'], [Sequelize.col('sort'), 'sort']],
+        //         model: app.model.Menu
+        //     },
+        //     raw: true,
+        //     attributes: [
+        //         // [Sequelize.col('content_info.id'), 'id'],
+        //         // [Sequelize.col('content_info.name'), 'name'],
+        //         [Sequelize.fn('COUNT', '*'), 'count']
+        //     ]
+        // })
+        // if (data) {
+        //     const result = []
+        //     data.forEach((item) => {
+        //         result.push({
+        //             id: item["menu_info.id"],
+        //             menu_title: item["menu_info.meun_title"],
+        //             sort: item["menu_info.sort"],
+        //             count: item.count
+        //         })
+        //     })
+        //     ctx.body = await app.middleware.returnsFormat.succeed(result)
+        // } else {
+        //     ctx.body = await app.middleware.returnsFormat.error({ msg: "出错了" })
+        // }
+        const menuData = await ctx.model.Menu.findAll({
+            order: [['sort', 'asc']],
         })
-        if (data) {
-            const result = []
-            data.forEach((item) => {
-                result.push({
-                    id: item["menu_info.id"],
-                    menu_title: item["menu_info.meun_title"],
-                    sort: item["menu_info.sort"],
-                    count: item.count
-                })
-            })
-            ctx.body = await app.middleware.returnsFormat.succeed(result)
+        const promises = []
+
+        menuData.map((item) => {
+            promises.push(ctx.model.Content.findAll(
+                {
+                    where: Sequelize.where(Sequelize.fn("FIND_IN_SET", item.id, Sequelize.col('type')), '>', 0),
+                    raw: true,
+                    attributes: [
+                        // [Sequelize.col('content_info.id'), 'id'],
+                        // [Sequelize.col('content_info.name'), 'name'],
+                        [Sequelize.fn('COUNT', '*'), 'count']
+                    ]
+                }
+            ).then((res => {
+                console.log(res[0].count);
+                return {
+                    id:item.id,
+                    menu_title:item.meun_title,
+                    count:res[0].count
+                }
+            }))
+            )
+        })
+        const contentCount= await Promise.all(promises)
+        if (contentCount) {
+            ctx.body = await app.middleware.returnsFormat.succeed(contentCount)
         } else {
             ctx.body = await app.middleware.returnsFormat.error({ msg: "出错了" })
         }
-
     }
 
     async sitemap() {
@@ -321,12 +352,12 @@ class ContentController extends Controller {
         now.setHours(now.getHours(), now.getMinutes() - now.getTimezoneOffset());
         for (let i = 0; i < result.length; i++) {
             let temp = {
-                url: "/content/detail?content_id="+result[i].id,  
+                url: "/content/detail?content_id=" + result[i].id,
                 changefreq: "daily",
                 lastmod: now.toISOString(),
-                id:result[i].id,
-                name:result[i].name,
-                created_at:result[i].created_at
+                id: result[i].id,
+                name: result[i].name,
+                created_at: result[i].created_at
             }
             data.push(temp)
         }
