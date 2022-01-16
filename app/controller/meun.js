@@ -74,41 +74,76 @@ class MenuController extends Controller {
     async sitemap() {
         const ctx = this.ctx
         const app=this.app
-        const result = await ctx.model.Content.findAll({
-            where: {},
+        // const result = await ctx.model.Content.findAll({
+        //     where: {},
 
-            group: "content_info.type",
-            // model:app.model.Menu,
-            include: {
-                attributes: [[Sequelize.col('id'), 'id'], [Sequelize.col('meun_title'), 'meun_title'], [Sequelize.col('sort'), 'sort']],
-                model: app.model.Menu
-            },
-            raw: true,
-            attributes: [
-                // [Sequelize.col('content_info.id'), 'id'],
-                // [Sequelize.col('content_info.name'), 'name'],
-                [Sequelize.fn('COUNT', '*'), 'count']
-            ]
-        })
-        let data = []
+        //     group: "content_info.type",
+        //     // model:app.model.Menu,
+        //     include: {
+        //         attributes: [[Sequelize.col('id'), 'id'], [Sequelize.col('meun_title'), 'meun_title'], [Sequelize.col('sort'), 'sort']],
+        //         model: app.model.Menu
+        //     },
+        //     raw: true,
+        //     attributes: [
+        //         // [Sequelize.col('content_info.id'), 'id'],
+        //         // [Sequelize.col('content_info.name'), 'name'],
+        //         [Sequelize.fn('COUNT', '*'), 'count']
+        //     ]
+        // })
+        // let data = []
         const now = new Date();
         now.setHours(now.getHours(), now.getMinutes() - now.getTimezoneOffset());
         
-        if (result) {
-            for (let i = 0; i < result.length; i++) {
-                let temp = {
-                    url: "/content?id="+result[i]['menu_info.id'],  
+        // if (result) {
+        //     for (let i = 0; i < result.length; i++) {
+        //         let temp = {
+        //             url: "/content?id="+result[i]['menu_info.id'],  
+        //             changefreq: "daily",
+        //             lastmod: now.toISOString(),
+        //             id:result[i]['menu_info.id'],
+        //             name:result[i]['menu_info.meun_title'],
+        //             count:result[i].count
+        //         }
+        //         data.push(temp)
+        //     }
+        //     ctx.body = this.app.middleware.returnsFormat.succeed(data)
+        // } else {
+        //     ctx.body = this.app.middleware.returnsFormat.error({ msg: "出错了" })
+        // }
+        const menuData = await ctx.model.Menu.findAll({
+            order: [['sort', 'asc']],
+        })
+        const promises = []
+
+        menuData.map((item) => {
+            promises.push(ctx.model.Content.findAll(
+                {
+                    where: Sequelize.where(Sequelize.fn("FIND_IN_SET", item.id, Sequelize.col('type')), '>', 0),
+                    raw: true,
+                    attributes: [
+                        // [Sequelize.col('content_info.id'), 'id'],
+                        // [Sequelize.col('content_info.id'), 'cid'],
+                        [Sequelize.fn('COUNT', '*'), 'count']
+                    ]
+                }
+            ).then((res => {
+                console.log(res[0].count);
+                return {
+                    url: "/content?id="+item.id,  
+                    id:item.id,
                     changefreq: "daily",
                     lastmod: now.toISOString(),
-                    id:result[i]['menu_info.id'],
-                    name:result[i]['menu_info.meun_title'],
-                    count:result[i].count
+                    name:item.meun_title,
+                    count:res[0].count
                 }
-                data.push(temp)
-            }
-            ctx.body = this.app.middleware.returnsFormat.succeed(data)
+            }))
+            )
+        })
+        const contentCount= await Promise.all(promises)
+        if (contentCount) {
+            ctx.body = await app.middleware.returnsFormat.succeed(contentCount)
         } else {
-            ctx.body = this.app.middleware.returnsFormat.error({ msg: "出错了" })
+            ctx.body = await app.middleware.returnsFormat.error({ msg: "出错了" })
         }
     }
 }
