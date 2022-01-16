@@ -99,9 +99,24 @@ class ContentController extends Controller {
         const pageSize = parseInt(ctx.query.pageSize) || 10
         // const MenuData=await this.service.meun.list()
         const params = []
-
-        if (ctx.query.id) {
-            params.push({ type: ctx.query.id })
+        let ids=ctx.query.id
+        // if (ids) {
+        //     params.push({ type: ids })
+        // }
+        if (!ids) {
+            
+        }else if (ids.split(",").length === 1 && ids) {
+            params.push({
+                [Op.and]: [
+                    Sequelize.where(Sequelize.fn("FIND_IN_SET", ids, Sequelize.col('type')), '>', 0)
+                ]
+            })
+        } else if (ids.split(",").length > 1) {
+            // where = {
+            //     [Op.and]: [
+            //         { type: ids }
+            //     ]
+            // }
         }
         if (ctx.query.name) {
             // params.push({
