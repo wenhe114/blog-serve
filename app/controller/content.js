@@ -144,7 +144,7 @@ class ContentController extends Controller {
         const where = params.length === 0 ? {} : { [Op.and]: params }
         const contentData = await ctx.model.Content.findAndCountAll({
             where: where,
-            order: [['updated_at', 'desc']],
+            order: [['created_at', 'desc']],
             include: {
                 model: app.model.Menu
             },
