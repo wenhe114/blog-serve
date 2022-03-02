@@ -53,7 +53,7 @@ module.exports = appInfo => {
     host: isDev?'localhost':myHost,
     port: "3306",
     database: isDev?'blog':'blogdata',
-    username: isDev?"root":"blogData",
+    username: isDev?"root":"root",
     password: "root",
     charset: "utf8",
     timezone: "+08:00",
@@ -87,6 +87,14 @@ module.exports = appInfo => {
     origin: '*',
     allowMethods: 'GET,HEAD,PUT,POST,DELETE,PATCH'
   };
+  config.multipart={
+    fileExtensions:[
+      "docx",
+      "exe",
+      "zip",
+      "msi"
+    ]
+  }
   // add your user config here
   const userConfig = {
     // myAppName: 'egg',
